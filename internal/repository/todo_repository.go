@@ -8,7 +8,7 @@ import (
 	"github.com/meshackkirwachumba/golang-postgres-todos/internal/models"
 )
 
-func CreateTodo(pool *pgxpool.Pool, title string, completed bool) (*models.Todo, error) {
+func CreateTodoInDB(pool *pgxpool.Pool, title string, completed bool) (*models.Todo, error) {
   var ctx context.Context 
   var cancel context.CancelFunc
   ctx, cancel = context.WithTimeout(context.Background(), 5 * time.Second)
