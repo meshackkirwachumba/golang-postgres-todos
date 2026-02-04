@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/meshackkirwachumba/golang-postgres-todos/internal/config"
 	"github.com/meshackkirwachumba/golang-postgres-todos/internal/database"
+	"github.com/meshackkirwachumba/golang-postgres-todos/internal/handlers"
 )
 
 func main() {
@@ -38,6 +39,9 @@ func main() {
 			"database": "connected",	
 		})
 	})
+
+	// Setup routes
+	router.POST("/todos", handlers.CreateTodoHandler(connectionPool))
 
 	router.Run(":" + env_configurations.Port)
 }
