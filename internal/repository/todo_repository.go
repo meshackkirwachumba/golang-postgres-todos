@@ -90,7 +90,7 @@ func GetTodoByIDFromDB(pool *pgxpool.Pool, id int) (*models.Todo, error) {
   return &todo, nil
 }
 
-func UpdatedTodoInDB(pool *pgxpool.Pool, id int, title string, completed bool) (*models.Todo, error) {
+func UpdateTodoInDB(pool *pgxpool.Pool, id int, title string, completed bool) (*models.Todo, error) {
   var ctx context.Context 
   var cancel context.CancelFunc
   ctx, cancel = context.WithTimeout(context.Background(), 5 * time.Second)
@@ -110,7 +110,7 @@ func UpdatedTodoInDB(pool *pgxpool.Pool, id int, title string, completed bool) (
     &todo.Completed,
     &todo.CreatedAt,
     &todo.UpdatedAt)
-    
+
   if err != nil {
     return nil, err
   }
