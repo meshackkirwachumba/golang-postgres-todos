@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/meshackkirwachumba/golang-postgres-todos/internal/repository"
 )
@@ -40,5 +42,29 @@ func GetAllTodosHandler(pool *pgxpool.Pool) gin.HandlerFunc {
 		return
 	}
 	c.JSON(http.StatusOK, todos)
+  }
+}
+
+func GetTodoByIDHandler(pool *pgxpool.Pool) gin.HandlerFunc {
+  return func(c *gin.Context) {
+	idString := c.Param("id")
+
+	todoID, err := strconv.Atoi(idString)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid todo ID"})
+		return
+	}
+
+	todo, err := repository.GetTodoByIDFromDB(pool, todoID)
+	if err != nil {
+		if err == pgx.ErrNoRows{
+			c.JSON(http.StatusNotFound, gin.H{"error": "Todo not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve todo from database"})
+		return
+	}
+
+	c.JSON(http.StatusOK, todo)
   }
 }
