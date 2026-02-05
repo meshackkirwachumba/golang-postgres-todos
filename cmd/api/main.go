@@ -42,6 +42,7 @@ func main() {
 
 	// Setup routes
 	router.POST("/todos", handlers.CreateTodoHandler(connectionPool))
+	router.GET("/todos", handlers.GetAllTodosHandler(connectionPool))
 
 	router.Run(":" + env_configurations.Port)
 }
