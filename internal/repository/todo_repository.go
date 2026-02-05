@@ -53,7 +53,7 @@ func GetAllTodosFromDB(pool *pgxpool.Pool) ([]models.Todo, error) {
   defer rows.Close()
 
   var todoList []models.Todo
-  
+
   for rows.Next() {
     var todo models.Todo
     err := rows.Scan(&todo.ID, &todo.Title, &todo.Completed, &todo.CreatedAt, &todo.UpdatedAt)
@@ -61,6 +61,10 @@ func GetAllTodosFromDB(pool *pgxpool.Pool) ([]models.Todo, error) {
       return nil, err
     }
     todoList = append(todoList, todo)
+  }
+
+  if err = rows.Err(); err != nil {
+    return nil, err
   }
 
   return todoList, nil
