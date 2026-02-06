@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -125,4 +126,28 @@ func UpdateTodoHandler(pool *pgxpool.Pool) gin.HandlerFunc {
 
 	c.JSON(http.StatusOK, todo)
   }
+}
+
+
+func DeleteTodoHandler(pool *pgxpool.Pool) gin.HandlerFunc {
+  return func(c *gin.Context) {
+	idString := c.Param("id")
+	todoID, err := strconv.Atoi(idString)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid todo ID"})
+		return
+	}
+
+	err = repository.DeleteTodoFromDB(pool, todoID)
+	if err != nil {
+		if err.Error() == fmt.Sprintf("todo with id %d not found", todoID) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Todo to be deleted not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete todo from database"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Todo deleted successfully"})
+   }
 }
