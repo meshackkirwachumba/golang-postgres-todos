@@ -45,6 +45,7 @@ func main() {
 	router.GET("/todos", handlers.GetAllTodosHandler(connectionPool))
 	router.GET("/todos/:id", handlers.GetTodoByIDHandler(connectionPool))
 	router.PUT("/todos/:id", handlers.UpdateTodoHandler(connectionPool))
+	router.DELETE("/todos/:id", handlers.DeleteTodoHandler(connectionPool))
 
 	router.Run(":" + env_configurations.Port)
 }
