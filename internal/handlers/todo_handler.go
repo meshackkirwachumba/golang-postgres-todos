@@ -16,7 +16,7 @@ type CreateTodoInput struct {
 }
 
 type UpdateTodoInput struct {
-	Title     string `json:"title"`
+	Title     *string `json:"title"`
 	Completed *bool   `json:"completed"`
 }
 
@@ -90,22 +90,35 @@ func UpdateTodoHandler(pool *pgxpool.Pool) gin.HandlerFunc {
 		return
 	}
 
-	if input.Title == "" && input.Completed == nil {
+	if input.Title == nil && input.Completed == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "At least one field (title or completed) must be provided for update"})
 		return
 	}
 
-	var completed bool
-	if input.Completed != nil {
-		completed = *input.Completed
-	}
-
-	todo, err := repository.UpdateTodoInDB(pool, todoID, input.Title, completed)
+	existingTodo, err := repository.GetTodoByIDFromDB(pool, todoID)
 	if err != nil {
 		if err == pgx.ErrNoRows{
 			c.JSON(http.StatusNotFound, gin.H{"error": "Todo to be updated not found"})
 			return
 		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve todo from database"})
+		return
+	}
+
+	title := existingTodo.Title
+	if input.Title != nil {
+		title = *input.Title
+	}
+
+
+
+	completed := existingTodo.Completed
+	if input.Completed != nil {
+		completed = *input.Completed
+	}
+
+	todo, err := repository.UpdateTodoInDB(pool, todoID, title, completed)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update todo in database"})
 		return
 	}
