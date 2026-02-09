@@ -10,6 +10,7 @@ import (
 type ConfigStr struct {
 	DatabaseURL string
 	Port        string
+	JWTSecret   string
 }
 
 func LoadEnvironmentalVariables() (*ConfigStr, error) {
@@ -21,10 +22,12 @@ func LoadEnvironmentalVariables() (*ConfigStr, error) {
 
 	dbURL := os.Getenv("DATABASE_URL")
 	port := os.Getenv("PORT")
+	jwtSecret := os.Getenv("JWT_SECRET")
 
 	configStr := &ConfigStr{
 		DatabaseURL: dbURL,
 		Port:        port,
+		JWTSecret:   jwtSecret,
 	}
 	return configStr, nil
 }

@@ -16,24 +16,22 @@ func CreateUserInDB(pool *pgxpool.Pool, user *models.User) (*models.User, error)
   query := `
    INSERT INTO users_table (email, password)
    VALUES ($1, $2)
-   RETURNING id, email;
+   RETURNING id, email, created_at, updated_at;
    `
     
-   var createdUser models.User
-
+   
    err :=pool.QueryRow(ctx, query, user.Email, user.Password).Scan(
-	&createdUser.ID,
-	&createdUser.Email,
-	&createdUser.Password, 
-	&createdUser.CreatedAt,
-	&createdUser.UpdatedAt,
+	&user.ID,
+	&user.Email,
+	&user.CreatedAt,
+	&user.UpdatedAt,
    )
 
    if err != nil {
 	return nil, err
    }
   
-   return &createdUser, nil
+   return user, nil
 }
 
 func GetUserByEmailInDB(pool *pgxpool.Pool, email string) (*models.User, error) {
