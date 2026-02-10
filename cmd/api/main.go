@@ -7,6 +7,7 @@ import (
 	"github.com/meshackkirwachumba/golang-postgres-todos/internal/config"
 	"github.com/meshackkirwachumba/golang-postgres-todos/internal/database"
 	"github.com/meshackkirwachumba/golang-postgres-todos/internal/handlers"
+	"github.com/meshackkirwachumba/golang-postgres-todos/internal/middleware"
 )
 
 func main() {
@@ -40,15 +41,25 @@ func main() {
 		})
 	})
 
-	// Setup routes
-	router.POST("/todos", handlers.CreateTodoHandler(connectionPool))
-	router.GET("/todos", handlers.GetAllTodosHandler(connectionPool))
-	router.GET("/todos/:id", handlers.GetTodoByIDHandler(connectionPool))
-	router.PUT("/todos/:id", handlers.UpdateTodoHandler(connectionPool))
-	router.DELETE("/todos/:id", handlers.DeleteTodoHandler(connectionPool))
+	protected := router.Group("/todos")
+	protected.Use(middleware.AuthMiddleware(*env_configurations))
 
+	// Setup protected routes
+    {
+	  protected.POST("", handlers.CreateTodoHandler(connectionPool))
+	  protected.GET("/", handlers.GetAllTodosHandler(connectionPool))
+	  protected.GET("/:id", handlers.GetTodoByIDHandler(connectionPool))
+	  protected.PUT("/:id", handlers.UpdateTodoHandler(connectionPool))
+	  protected.DELETE("/:id", handlers.DeleteTodoHandler(connectionPool))
+
+	}
 	router.POST("/auth/register", handlers.CreateUserHandler(connectionPool))
 	router.POST("/auth/login", handlers.LoginUserHandler(connectionPool, env_configurations))
+
+	
+
+	// Protected route example
+	router.GET("/protected-test", middleware.AuthMiddleware(*env_configurations), handlers.TestProtectedHandler())
 
 	router.Run(":" + env_configurations.Port)
 }
